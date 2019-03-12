@@ -34,25 +34,30 @@ public class MapManager : MonoBehaviour
 
 	}
 
-	public Point st, ed;
-
-	static public Map[] m_maps;
-	static public Point[] m_points;
-	static Dictionary<string, Map> m_mapDic;
-	static Dictionary<string, Point> m_pointDic;
-	static Dictionary<Point, List<Edge>> m_graph;
-	
-	static SortedSet<Edge> FindWayQueue;
-	static Dictionary<Point,float> FindWayDis;
-	static Dictionary<Point, bool> FindWayVis;
-	static Dictionary<Point, Point> FindWayFrom;
-	public static List<Map> FindWayMaps;
-	public static List<Point> FindWayPoints;
-
-	void OnClick()
+	static public MapManager Instance;
+	private void Awake()
 	{
-		FindWay(st, ed);
+		if(!Instance)
+		{
+			Instance = this;
+		}
 	}
+
+	Map[] m_maps;
+	Point[] m_points;
+
+	Dictionary<string, Map> m_mapDic;
+	Dictionary<string, Point> m_pointDic;
+	Dictionary<Point, List<Edge>> m_graph;
+	
+	SortedSet<Edge> FindWayQueue;
+	Dictionary<Point,float> FindWayDis;
+	Dictionary<Point, bool> FindWayVis;
+	Dictionary<Point, Point> FindWayFrom;
+
+	public List<Map> FindWayMaps;
+	public List<Point> FindWayPoints;
+
 
     // Start is called before the first frame update
     void Start()
@@ -95,7 +100,7 @@ public class MapManager : MonoBehaviour
 
 	}
 
-	void FindWay(Point _st,Point _ed)
+	public void FindWay(Point _st,Point _ed)
 	{
 		FindWayPoints.Clear();
 		FindWayMaps.Clear();
@@ -148,14 +153,15 @@ public class MapManager : MonoBehaviour
 
 		Point point = _ed;
 		FindWayPoints.Add(_ed);
-		FindWayMaps.Add(_ed.m_map);
+		//FindWayMaps.Add(_ed.m_map);
 		while (FindWayFrom.ContainsKey(point))
 		{
 			//Debug.Log(point.name+" "+point.m_pointName);
 			FindWayPoints.Add(FindWayFrom[point]);
 			if (FindWayFrom[point].m_map == point.m_map)
 			{
-				if (!FindWayMaps.Exists((x)=>x.m_mapName == point.m_map.m_mapName)) FindWayMaps.Add(FindWayFrom[point].m_map);
+				//if (!FindWayMaps.Exists((x)=>x.m_mapName == point.m_map.m_mapName))
+					FindWayMaps.Add(FindWayFrom[point].m_map);
 				point.m_map.m_nav.DrawLine(FindWayFrom[point].transform, point.transform);
 			}
 			point = FindWayFrom[point];
@@ -164,10 +170,10 @@ public class MapManager : MonoBehaviour
 		FindWayPoints.Reverse();
 		//Debug.Log(FindWayPoints);
 		//Debug.Log("MAPs"+FindWayMaps.Count);
-		//foreach (var p in FindWayMaps)
-		//{
-		//	Debug.Log(p.name);
-		//}
+		foreach (var p in FindWayMaps)
+		{
+			Debug.Log(p.name);
+		}
 		
 
 	}
