@@ -29,6 +29,11 @@ public class NavManager : MonoBehaviour
 		m_lineRender.SetPositions(m_path.corners);
 	}
 
+	public void DelLine()
+	{
+		m_lineRender.positionCount = 0;
+	}
+
 	public float CalDis(Transform _st,Transform _ed)
 	{
 		gameObject.transform.position = _st.position;

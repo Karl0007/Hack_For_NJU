@@ -46,8 +46,8 @@ public class MapManager : MonoBehaviour
 	Map[] m_maps;
 	Point[] m_points;
 
-	Dictionary<string, Map> m_mapDic;
-	Dictionary<string, Point> m_pointDic;
+	Dictionary<string, HashSet<Map>> m_mapDic;
+	Dictionary<string, HashSet<Point>> m_pointDic;
 	Dictionary<Point, List<Edge>> m_graph;
 	
 	SortedSet<Edge> FindWayQueue;
@@ -73,6 +73,8 @@ public class MapManager : MonoBehaviour
 		FindWayVis = new Dictionary<Point, bool>();
 		FindWayFrom = new Dictionary<Point, Point>();
 
+		m_pointDic = new Dictionary<string, HashSet<Point>>();
+		m_mapDic = new Dictionary<string, HashSet<Map>>();
 		///<summary>
 		///获取所有的点
 		///连边建图
@@ -86,6 +88,7 @@ public class MapManager : MonoBehaviour
 			foreach (Point op in p.m_otherMapPoint)
 			{
 				m_graph[p].Add(new Edge(op,0));
+				m_graph[op].Add(new Edge(p, 0));
 			}
 			if (p.m_otherMapPoint.Length != 0)
 			{
@@ -98,9 +101,74 @@ public class MapManager : MonoBehaviour
 			}
 		}
 
+		///<summary>
+		///提取字符串中的信息
+		/// </summary>
+		foreach(var m in m_maps)
+		{
+			string[] tmp0 = m.m_mapName.Split('+');
+			foreach (var s in tmp0)
+			{
+				string tmp1 = s.Split('-')[0];
+				if (!m_mapDic.ContainsKey(tmp1))
+				{
+					m_mapDic.Add(tmp1, new HashSet<Map>());
+				}
+				m_mapDic[tmp1].Add(m);
+			}
+		}
+		foreach(var p in m_points)
+		{
+			string[] tmp0 = p.m_pointName.Split('+');
+			foreach (var s in tmp0)
+			{
+				string tmp1 = s.Split('-')[0];
+				if (!m_pointDic.ContainsKey(tmp1))
+				{
+					m_pointDic.Add(tmp1, new HashSet<Point>());
+				}
+				m_pointDic[tmp1].Add(p);
+			}
+		}
 	}
 
-	public void FindWay(Point _st,Point _ed)
+	public HashSet<Map> GetMapFromString(string _s,out string _mapname)
+	{
+		foreach (var m in m_mapDic)
+		{
+			if (_s.Contains(m.Key))
+			{
+				_mapname = _s.Replace(m.Key,"");
+				return m.Value;
+			}
+		}
+		_mapname = _s;
+		return null;
+	}
+
+	public HashSet<Point> GetPointFromString(string _s,HashSet<Map> _m)
+	{
+		Debug.Log(_s);
+		HashSet<Point> res = new HashSet<Point>();
+		foreach(var p in m_pointDic)
+		{
+			if ((_s.Contains(p.Key)))
+			{
+				foreach(var sp in p.Value)
+				{
+					if (_m == null || _m.Count == 0 || _m.Contains(sp.m_map))
+					{
+						res.Add(sp);
+					}
+				}
+			}
+		}
+		return res;
+	}
+
+
+
+	public string FindWay(Point _st,HashSet<Point> _eds)
 	{
 		FindWayPoints.Clear();
 		FindWayMaps.Clear();
@@ -109,14 +177,7 @@ public class MapManager : MonoBehaviour
 		FindWayFrom.Clear();
 		FindWayVis.Clear();
 
-		if (_st.m_map == _ed.m_map)
-		{
-			FindWayMaps.Add(_st.m_map);
-			FindWayPoints.Add(_st);
-			FindWayPoints.Add(_ed);
-			_st.m_map.m_nav.DrawLine(_st.transform, _ed.transform);
-			return;
-		}
+		if (_eds.Contains(_st)) _eds.Remove(_st);
 
 		foreach (var p in m_points)
 		{
@@ -149,9 +210,32 @@ public class MapManager : MonoBehaviour
 			}
 		}
 
+		foreach (var _ed in _eds)
+		{
+			if (_st.m_map == _ed.m_map)
+			{
+				//FindWayMaps.Add(_st.m_map);
+				//FindWayPoints.Add(_st);
+				//FindWayPoints.Add(_ed);
+				//_st.m_map.m_nav.DrawLine(_st.transform, _ed.transform);
+				//return;
 
-		Point point = _ed;
-		FindWayPoints.Add(_ed);
+				FindWayDis[_ed] = _st.m_map.m_nav.CalDis(_st.transform,_ed.transform);
+				FindWayFrom[_ed] = _st;
+			}
+		}
+
+
+		Point point = null;
+		foreach(var p in _eds)
+		{
+			if (point==null || FindWayDis[point] > FindWayDis[p])
+			{
+				point = p;
+			}
+		}
+		string res_ed = point.m_map.m_mapName.Split('+')[0].Split('-')[0] + point.m_pointName.Split('+')[0].Split('-')[0];
+		FindWayPoints.Add(point);
 		//FindWayMaps.Add(_ed.m_map);
 		while (FindWayFrom.ContainsKey(point))
 		{
@@ -173,8 +257,8 @@ public class MapManager : MonoBehaviour
 		{
 			Debug.Log(p.name);
 		}
-		
 
+		return res_ed;
 	}
 
     // Update is called once per frame

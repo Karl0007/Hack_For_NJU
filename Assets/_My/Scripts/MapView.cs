@@ -16,7 +16,7 @@ public class MapView : MonoBehaviour
 		Showing,
 	}
 
-	static MapView Instance;
+	public static MapView Instance;
 	private void Awake()
 	{
 		if (!Instance)
@@ -29,11 +29,11 @@ public class MapView : MonoBehaviour
 	private int m_currentMap;
 	private MapStates m_mapStates;
 
-	public void FindWay(Point _st,Point _ed)
+	public string FindWay(Point _st,HashSet<Point> _ed)
 	{
 		m_currentMap = 0;
 		m_mapStates = MapStates.Showing;
-		MapManager.Instance.FindWay(_st, _ed);
+		return MapManager.Instance.FindWay(_st, _ed);
 	}
 
 
@@ -51,7 +51,7 @@ public class MapView : MonoBehaviour
 
 	public void LastMap()
 	{
-		FindWay(st, ed);
+		//FindWay(st, ed);
 
 		if (m_mapStates == MapStates.Showing)
 		{
@@ -66,6 +66,10 @@ public class MapView : MonoBehaviour
 	public void BackToNone()
 	{
 		m_mapStates = MapStates.None;
+		foreach (var map in MapManager.Instance.FindWayMaps)
+		{
+			map.m_nav.DelLine();
+		}
 	}
 
 

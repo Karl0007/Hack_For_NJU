@@ -49,10 +49,16 @@ public class CamerasManager : MonoBehaviour
 
 	public void TransTo(Vector2 _pos)
 	{
-		Vector3 tmp = m_cameras[m_curCamera^1].transform.position;
-		tmp.x = _pos.x;
-		tmp.z = _pos.y;
-		m_cameras[m_curCamera^1].transform.position = tmp;
+		Vector3 tmp = m_cameras[m_curCamera^1].transform.localPosition;
+		Debug.Log(tmp);
+		tmp.x = _pos.x+.5f;
+		tmp.y = -6.1693f;
+		tmp.z = _pos.y-8.5f;
+		Debug.Log(tmp);
+		m_cameras[m_curCamera^1].transform.localPosition = tmp;
+		Debug.Log(m_cameras[m_curCamera ^ 1].transform.localPosition);
+		//m_cameras[m_curCamera ^ 1].transform.LookAt(new Vector3(_pos.x,0,_pos.y));
+
 		m_transitionsAssistant.cameraA = m_cameras[m_curCamera];
 		m_transitionsAssistant.cameraB = m_cameras[m_curCamera ^ 1];
 

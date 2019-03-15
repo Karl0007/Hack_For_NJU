@@ -14,18 +14,46 @@ public class UIMove : MonoBehaviour
 
 	public void GoToAndFade(Vector2 _pos,float _time)
 	{
+		m_tran = gameObject.GetComponent<RectTransform>();
+		m_img = (gameObject.GetComponentsInChildren<Image>());
+		m_text = (gameObject.GetComponentsInChildren<Text>());
 		m_deltacolor = -1.0f/_time;
 		m_time = _time;
-		m_speed = (_pos)/_time;
+		m_speed = (_pos-m_tran.anchoredPosition)/_time;
 	}
 
 	public void GoToAndShow(Vector2 _pos, float _time)
 	{
+		m_tran = gameObject.GetComponent<RectTransform>();
+		m_img = (gameObject.GetComponentsInChildren<Image>());
+		m_text = (gameObject.GetComponentsInChildren<Text>());
 		m_deltacolor = 1.0f / _time;
 		m_time = _time;
-		m_speed = (_pos) / _time;
+		m_speed = (_pos-m_tran.anchoredPosition) / _time;
 	}
 
+	public void GoTo(Vector2 _pos,float _col)
+	{
+		m_tran = gameObject.GetComponent<RectTransform>();
+		m_img = (gameObject.GetComponentsInChildren<Image>());
+		m_text = (gameObject.GetComponentsInChildren<Text>());
+		m_tran.anchoredPosition += _pos;
+		Color tmp;
+		foreach (var x in m_img)
+		{
+			tmp=x.color;
+			tmp.a = _col;
+			x.color = tmp;
+		}
+
+		foreach (var x in m_text)
+		{
+			tmp = x.color;
+			tmp.a = _col;
+			x.color = tmp;
+		}
+		Destroy(this);
+	}
 
 	// Start is called before the first frame update
 	void Start()
@@ -59,6 +87,7 @@ public class UIMove : MonoBehaviour
 		}
 		else
 		{
+			if (m_deltacolor < 0) this.gameObject.SetActive(false);
 			Destroy(this);
 		}
 	}
