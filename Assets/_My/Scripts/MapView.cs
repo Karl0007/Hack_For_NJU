@@ -39,6 +39,7 @@ public class MapView : MonoBehaviour
 
 	public void NextMap()
 	{
+		Debug.Log(MapManager.Instance.FindWayMaps.Count);
 		if (m_mapStates == MapStates.Showing)
 		{
 			m_currentMap++;

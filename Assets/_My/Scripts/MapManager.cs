@@ -75,6 +75,18 @@ public class MapManager : MonoBehaviour
 
 		m_pointDic = new Dictionary<string, HashSet<Point>>();
 		m_mapDic = new Dictionary<string, HashSet<Map>>();
+		foreach(var m in m_maps)
+		{
+			var ps = m.GetComponentsInChildren<Point>();
+			List<Point> tmp = new List<Point>();
+			foreach (var p in ps)
+			{
+				//if (p.m_otherMapPoint.Length == 0)
+					tmp.Add(p);
+			}
+			m.m_points = tmp.ToArray();
+		}
+		Debug.Log("edge ok");
 		///<summary>
 		///获取所有的点
 		///连边建图
@@ -83,12 +95,14 @@ public class MapManager : MonoBehaviour
 		{
 			m_graph.Add(p, new List<Edge>());
 		}
+		Debug.Log(m_points.Length);
 		foreach (Point p in m_points)
 		{
 			foreach (Point op in p.m_otherMapPoint)
 			{
-				m_graph[p].Add(new Edge(op,0));
-				m_graph[op].Add(new Edge(p, 0));
+				if (op == null) continue;
+				m_graph[p].Add(new Edge(op,1));
+				m_graph[op].Add(new Edge(p, 1));
 			}
 			if (p.m_otherMapPoint.Length != 0)
 			{
@@ -97,10 +111,11 @@ public class MapManager : MonoBehaviour
 					float dis = p.m_map.m_nav.CalDis(p.transform, mp.transform);
 					m_graph[p].Add(new Edge(mp,dis));
 					m_graph[mp].Add(new Edge(p, dis));
+					if (mp.m_pointName == "休息区") Debug.Log("休息区------"+p.m_pointName+" "+dis);
 				}
 			}
 		}
-
+		Debug.Log("edge ok");
 		///<summary>
 		///提取字符串中的信息
 		/// </summary>
@@ -134,8 +149,10 @@ public class MapManager : MonoBehaviour
 
 	public HashSet<Map> GetMapFromString(string _s,out string _mapname)
 	{
+		Debug.Log(m_mapDic.Count);
 		foreach (var m in m_mapDic)
 		{
+			//Debug.Log(m.Key);
 			if (_s.Contains(m.Key))
 			{
 				_mapname = _s.Replace(m.Key,"");
@@ -148,7 +165,7 @@ public class MapManager : MonoBehaviour
 
 	public HashSet<Point> GetPointFromString(string _s,HashSet<Map> _m)
 	{
-		Debug.Log(_s);
+		//Debug.Log(_s);
 		HashSet<Point> res = new HashSet<Point>();
 		foreach(var p in m_pointDic)
 		{
@@ -239,12 +256,13 @@ public class MapManager : MonoBehaviour
 		//FindWayMaps.Add(_ed.m_map);
 		while (FindWayFrom.ContainsKey(point))
 		{
-			//Debug.Log(point.name+" "+point.m_pointName);
+			Debug.Log(point.m_pointName + "-->" + FindWayFrom[point].m_pointName);
 			FindWayPoints.Add(FindWayFrom[point]);
 			if (FindWayFrom[point].m_map == point.m_map)
 			{
-				//if (!FindWayMaps.Exists((x)=>x.m_mapName == point.m_map.m_mapName))
+				if (!FindWayMaps.Exists((x)=>x.m_mapName == point.m_map.m_mapName))
 					FindWayMaps.Add(FindWayFrom[point].m_map);
+				point.m_map.m_nav.DrawLine(FindWayFrom[point].transform, point.transform);
 				point.m_map.m_nav.DrawLine(FindWayFrom[point].transform, point.transform);
 			}
 			point = FindWayFrom[point];

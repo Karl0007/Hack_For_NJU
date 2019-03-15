@@ -23,7 +23,9 @@ public class NavManager : MonoBehaviour
 
 	public void DrawLine(Transform _st,Transform _ed)
 	{
+		m_navMeshAgent.enabled = false;
 		gameObject.transform.position = _st.position;
+		m_navMeshAgent.enabled = true;
 		m_navMeshAgent.CalculatePath(_ed.position, m_path);
 		m_lineRender.positionCount = m_path.corners.Length;
 		m_lineRender.SetPositions(m_path.corners);
@@ -36,8 +38,10 @@ public class NavManager : MonoBehaviour
 
 	public float CalDis(Transform _st,Transform _ed)
 	{
+		m_navMeshAgent.enabled = false;
 		gameObject.transform.position = _st.position;
-		Debug.Log(m_navMeshAgent,gameObject);
+		m_navMeshAgent.enabled = true;
+		//Debug.Log(m_navMeshAgent,gameObject);
 		m_navMeshAgent.CalculatePath(_ed.position, m_path);
 		float res = 0;
 		for (int i = 0; i < m_path.corners.Length-1; i++)
