@@ -58,6 +58,7 @@ public class MapManager : MonoBehaviour
 	public List<Map> FindWayMaps;
 	public List<Point> FindWayPoints;
 
+	public Map m_defmap;
 
     // Start is called before the first frame update
     void Start()
@@ -72,6 +73,7 @@ public class MapManager : MonoBehaviour
 		FindWayDis = new Dictionary<Point, float>();
 		FindWayVis = new Dictionary<Point, bool>();
 		FindWayFrom = new Dictionary<Point, Point>();
+		FindWayMaps.Add(m_defmap);
 
 		m_pointDic = new Dictionary<string, HashSet<Point>>();
 		m_mapDic = new Dictionary<string, HashSet<Map>>();
@@ -82,7 +84,8 @@ public class MapManager : MonoBehaviour
 			foreach (var p in ps)
 			{
 				//if (p.m_otherMapPoint.Length == 0)
-					tmp.Add(p);
+				tmp.Add(p);
+				p.GetComponent<MeshRenderer>().enabled = false;
 			}
 			m.m_points = tmp.ToArray();
 		}

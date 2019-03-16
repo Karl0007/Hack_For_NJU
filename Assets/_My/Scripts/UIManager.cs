@@ -101,6 +101,13 @@ public class UIManager : MonoBehaviour
 			return;
 		}
 		m_cureff = true;
+		MapManager.Instance.FindWayMaps.Clear();
+		foreach (var np in p)
+		{
+			MapManager.Instance.FindWayMaps.Add(np.m_map);
+			MapView.Instance.NextMap();
+		}
+
 		BackClick();
 	}
 
@@ -133,7 +140,7 @@ public class UIManager : MonoBehaviour
 		m_objs[1].AddComponent<UIMove>().GoToAndFade(new Vector2(-10, 0), 0.4f);
 		m_objs[3].AddComponent<UIMove>().GoToAndShow(new Vector2(0, 0), 0.4f);
 		BackShow();
-
+		MapView.Instance.CurMap();
 	}
 
 	public void GoNextMap()
